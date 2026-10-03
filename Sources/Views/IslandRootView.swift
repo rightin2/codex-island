@@ -472,7 +472,9 @@ private struct PeekPillOverlay: View {
             gaugeProgress: gaugeProgress,
             gaugeHeight: availableHeight ?? 38,
             showsResetCaption: showsResetCaption,
-            valueWidth: slotWidth
+            valueWidth: slotWidth,
+            secondaryUsage: contents == .stacked ? secondaryWindow : nil,
+            secondarySeverity: secondarySeverity
         )
         Group {
             if contents == .reset || contents == .stacked {
@@ -519,6 +521,25 @@ private struct PeekPillOverlay: View {
         case .grok, .antigravity:
             return connections.primary(provider)?.window ?? .unknown
         }
+    }
+
+    /// Weekly window shown under the 5-hour one (Claude and Codex only).
+    private var secondaryWindow: WindowUsage? {
+        switch provider {
+        case .claude: return usageStore.claude.peekSecondaryWindow
+        case .codex:  return usageStore.codex.peekSecondaryWindow
+        case .grok, .antigravity: return nil
+        }
+    }
+
+    /// The weekly row gets its own warning colour from the same alert
+    /// thresholds, so a near-full week shows even when the 5-hour window is fine.
+    private var secondarySeverity: AlertEngine.Severity {
+        let thresholds = AlertThresholdStore.shared
+        guard thresholds.enabled, let w = secondaryWindow, w.hasPercentageReading else { return .none }
+        if w.percentInt >= thresholds.criticalPercent { return .critical }
+        if w.percentInt >= thresholds.warningPercent { return .warning }
+        return .none
     }
 
     private var currentWindowIsWeekly: Bool {

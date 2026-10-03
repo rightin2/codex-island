@@ -76,6 +76,15 @@ swiftc \
 
 swiftc \
   -parse-as-library \
+  -o "$OUT_DIR/peek-secondary-window-tests" \
+  Sources/Model/UsageDisplayModeStore.swift \
+  Sources/Usage/AppUsage.swift \
+  Tests/PeekSecondaryWindowTests.swift
+
+"$OUT_DIR/peek-secondary-window-tests"
+
+swiftc \
+  -parse-as-library \
   -o "$OUT_DIR/wake-recovery-tests" \
   Sources/Model/UsageDisplayModeStore.swift \
   Sources/Usage/AppUsage.swift \

@@ -28,6 +28,27 @@ The app is free, open source, unsigned, and local-first. It reads credentials
 already written by the Claude Code and Codex command-line tools, then calls only the
 providers' own usage endpoints.
 
+## This fork (rightin2)
+
+The peek pill shows **both** usage windows for Claude and Codex: the 5-hour
+percentage on top and the weekly percentage underneath (`32% 5h` / `61% 7d`).
+The weekly row takes its own amber/red colour from the alert thresholds. Reset
+countdowns are still in the expanded panel. Auto-updates point at this fork, so
+upstream releases never overwrite it.
+
+Rebuild and install (from a clean copy, since Desktop files carry metadata that
+breaks code signing):
+
+```sh
+B="$TMPDIR/codex-island-build"; rm -rf "$B"; mkdir -p "$B"
+git ls-files -z | xargs -0 -I{} rsync -R "{}" "$B/"; cp -R Vendor "$B/" 2>/dev/null
+cd "$B" && xattr -cr . && SU_FEED_URL="https://github.com/rightin2/codex-island/releases/latest/download/appcast.xml" ./build.sh
+codesign --force --sign - --timestamp=none build/CodexIsland.app
+killall CodexIsland; ditto build/CodexIsland.app /Applications/CodexIsland.app; open -a CodexIsland
+```
+
+To pull in upstream changes: `git fetch upstream && git merge upstream/main`, then rebuild.
+
 ## What it does
 
 - **Two providers, four windows.** Claude 5h + 7d and Codex 5h + 7d live in

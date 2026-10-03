@@ -127,6 +127,14 @@ struct AppUsage {
         return visible.first { window($0).hasReading } ?? visible.first ?? .fiveHour
     }
 
+    /// The weekly window shown under the 5-hour one in the stacked peek pill,
+    /// or nil when the pill already shows the weekly window (weekly-only
+    /// plans) or the plan reports no weekly window.
+    var peekSecondaryWindow: WindowUsage? {
+        guard peekWindowKind == .fiveHour, visibleWindows.contains(.weekly) else { return nil }
+        return weekly
+    }
+
     /// Which window `peekWindow` selected — the peek chrome (VoiceOver label,
     /// window-length fallback glyph) must describe the same window it shows.
     var peekWindowIsWeekly: Bool {

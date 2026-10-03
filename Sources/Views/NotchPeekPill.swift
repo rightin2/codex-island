@@ -31,6 +31,10 @@ struct NotchPeekPill: View {
     var gaugeHeight: CGFloat = 38
     var showsResetCaption = false
     var valueWidth: CGFloat? = nil
+    /// Weekly window shown as a second row under the 5-hour one (`.stacked`
+    /// only). nil keeps the original percent-over-countdown layout.
+    var secondaryUsage: WindowUsage? = nil
+    var secondarySeverity: AlertEngine.Severity = .none
     @ObservedObject private var usageDisplay = UsageDisplayModeStore.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -97,7 +101,61 @@ struct NotchPeekPill: View {
         .fixedSize()
     }
 
+    @ViewBuilder
     private var stackedContent: some View {
+        if let secondaryUsage {
+            VStack(alignment: alignment == .leading ? .trailing : .leading, spacing: 1) {
+                windowRow(usage, label: windowLengthFallback.isEmpty ? "5h" : windowLengthFallback,
+                          tint: effectiveTint, warn: severity != .none, loadingRow: showSpinner)
+                    .frame(height: 12)
+                windowRow(secondaryUsage, label: "7d", tint: tint(for: secondarySeverity),
+                          warn: secondarySeverity != .none, loadingRow: loading && secondaryUsage.isUnreported)
+                    .frame(height: 12)
+            }
+        } else {
+            singleStackedContent
+        }
+    }
+
+    /// One "32% 5h" row of the two-window stacked pill. The percent sits on
+    /// the outside, the window label toward the notch, mirrored per side.
+    private func windowRow(_ w: WindowUsage, label: String, tint: Color, warn: Bool,
+                           loadingRow: Bool) -> some View {
+        let percent: Text
+        if loadingRow {
+            percent = Text("·").foregroundColor(.white.opacity(0.55))
+        } else if !w.hasReading {
+            percent = Text("-%").foregroundColor(.white.opacity(0.40))
+        } else if w.isUnlimitedAmount, let amount = w.usedAmount {
+            percent = Text(UsageCreditDisplay.compactCurrency(amount, code: w.currencyCode)).foregroundColor(tint)
+        } else {
+            percent = Text("\(w.displayedPercentInt(mode: usageDisplay.mode))%").foregroundColor(tint)
+        }
+        let caption = Text(label).font(Typography.caption).foregroundColor(.white.opacity(0.50))
+        let glyph = Text("⚠").foregroundColor(tint)
+        return HStack(spacing: 3) {
+            if alignment == .leading {
+                if warn { glyph.font(Typography.bodyNumber) }
+                percent.font(Typography.bodyNumber)
+                caption
+            } else {
+                caption
+                percent.font(Typography.bodyNumber)
+                if warn { glyph.font(Typography.bodyNumber) }
+            }
+        }
+        .minimumScaleFactor(0.6)
+    }
+
+    private func tint(for severity: AlertEngine.Severity) -> Color {
+        switch severity {
+        case .none:     return tint
+        case .warning:  return IslandColor.alertAmber
+        case .critical: return IslandColor.alertRed
+        }
+    }
+
+    private var singleStackedContent: some View {
         VStack(alignment: alignment == .leading ? .trailing : .leading, spacing: 1) {
             HStack(spacing: 4) {
                 if showSpinner {
