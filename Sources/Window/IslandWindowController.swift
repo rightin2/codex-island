@@ -19,7 +19,7 @@ final class IslandWindowController {
     private var isMouseInsideIsland = false
     private var cmdQMonitor: Any?
 
-    static let windowSize = CGSize(width: 900, height: 360)
+    static let windowSize = CGSize(width: 2000, height: 360)
 
     init() {
         let notch = NotchInfo.detect(from: Self.targetScreen())

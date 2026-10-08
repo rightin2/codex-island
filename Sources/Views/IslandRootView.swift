@@ -41,6 +41,14 @@ struct IslandRootView: View {
                 }
             }
             .frame(width: model.size.width)
+            .background(alignment: .topLeading) {
+                // Working chats grow out of the left edge, behind the island
+                // so the join is seamless. Hidden while the panel is open.
+                if model.state != .expanded {
+                    WorkingChatsStrip(islandWidth: model.size.width, height: model.notch.height,
+                                      screenWidth: DisplayInfo.currentTarget()?.screen.frame.width ?? 1512)
+                }
+            }
             .onPreferenceChange(ExpandedHeightKey.self) { model.updateExpandedHeight($0) }
             .background {
                 GlowLayer(isExpanded: model.state == .expanded, hovering: hovering)

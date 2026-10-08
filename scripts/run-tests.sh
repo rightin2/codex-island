@@ -93,6 +93,15 @@ swiftc \
 
 swiftc \
   -parse-as-library \
+  -o "$OUT_DIR/working-chats-tests" \
+  Sources/Usage/WorkingChats.swift \
+  Sources/Views/WorkingChatsLayout.swift \
+  Tests/WorkingChatsTests.swift
+
+"$OUT_DIR/working-chats-tests"
+
+swiftc \
+  -parse-as-library \
   -o "$OUT_DIR/wake-recovery-tests" \
   Sources/Model/UsageDisplayModeStore.swift \
   Sources/Usage/AppUsage.swift \

@@ -35,7 +35,14 @@ The peek pill shows **both** usage windows for Claude and Codex side by side
 next to it. The weekly figure takes its own amber/red colour from the alert
 thresholds. In the expanded panel, the weekly tile also says how much of the
 week you used today (`+9% today`), worked out from the readings the app records
-since midnight. Reset countdowns are still in the expanded panel. Auto-updates point at this fork, so
+since midnight. Reset countdowns are still in the expanded panel.
+
+To the left of the Claude usage, the island also lists the Claude chats that are
+working right now (from Claude Code's own session registry, `~/.claude/sessions`;
+`claude -p` script runs are left out). It only grows leftward and never over the
+frontmost app's menus: it reads where they end through Accessibility (grant
+CodexIsland in System Settings, Privacy & Security, Accessibility). Names shorten,
+then collapse to a `+N` count, when space runs out. Auto-updates point at this fork, so
 upstream releases never overwrite it.
 
 Rebuild and install (from a clean copy, since Desktop files carry metadata that
