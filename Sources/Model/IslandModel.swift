@@ -28,7 +28,7 @@ final class IslandModel: ObservableObject {
 
     /// Stacked labels share the same fixed space as a single-provider gauge,
     /// so changing providers or live readings never shifts the silhouette.
-    let pillSlotWidth: CGFloat = 64
+    let pillSlotWidth: CGFloat = NotchPeekPill.inlineWidth + 14
 
     /// Visible expanded panel width.
     private let expandedWidth: CGFloat = 800

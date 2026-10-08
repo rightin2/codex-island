@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 /// Glance-state percentage pill that lives outboard of each provider logo
 /// while the island is in `.peek`. No background of its own — text painted
@@ -104,21 +105,30 @@ struct NotchPeekPill: View {
     @ViewBuilder
     private var stackedContent: some View {
         if let secondaryUsage {
-            VStack(alignment: alignment == .leading ? .trailing : .leading, spacing: 1) {
+            HStack(spacing: Self.inlineGap) {
                 windowRow(usage, label: windowLengthFallback.isEmpty ? "5h" : windowLengthFallback,
                           tint: effectiveTint, warn: severity != .none, loadingRow: showSpinner)
-                    .frame(height: 12)
                 windowRow(secondaryUsage, label: "7d", tint: tint(for: secondarySeverity),
                           warn: secondarySeverity != .none, loadingRow: loading && secondaryUsage.isUnreported)
-                    .frame(height: 12)
             }
         } else {
             singleStackedContent
         }
     }
 
-    /// One "32% 5h" row of the two-window stacked pill. The percent sits on
-    /// the outside, the window label toward the notch, mirrored per side.
+    /// The menu bar's own font, so the pill reads like the status items beside it.
+    static let menuBarFont = Font(NSFont.menuBarFont(ofSize: 0)).monospacedDigit()
+    static let inlineGap: CGFloat = 10
+
+    /// Room for the widest side-by-side pill, "5h 100%  7d 100%" plus a warning glyph.
+    static let inlineWidth: CGFloat = {
+        let font = NSFont.menuBarFont(ofSize: 0)
+        let digits = NSFont.monospacedDigitSystemFont(ofSize: font.pointSize, weight: .regular)
+        let width = ("5h 100% ⚠" as NSString).size(withAttributes: [.font: digits]).width
+        return ceil(width * 2 + inlineGap + 4)
+    }()
+
+    /// One "5h 32%" segment of the two-window pill, in the menu-bar font.
     private func windowRow(_ w: WindowUsage, label: String, tint: Color, warn: Bool,
                            loadingRow: Bool) -> some View {
         let percent: Text
@@ -131,20 +141,13 @@ struct NotchPeekPill: View {
         } else {
             percent = Text("\(w.displayedPercentInt(mode: usageDisplay.mode))%").foregroundColor(tint)
         }
-        let caption = Text(label).font(Typography.caption).foregroundColor(.white.opacity(0.50))
-        let glyph = Text("⚠").foregroundColor(tint)
-        return HStack(spacing: 3) {
-            if alignment == .leading {
-                if warn { glyph.font(Typography.bodyNumber) }
-                percent.font(Typography.bodyNumber)
-                caption
-            } else {
-                caption
-                percent.font(Typography.bodyNumber)
-                if warn { glyph.font(Typography.bodyNumber) }
-            }
+        let caption = Text(label).font(Self.menuBarFont).foregroundColor(.white.opacity(0.50))
+        let glyph = Text("⚠").font(Self.menuBarFont).foregroundColor(tint)
+        return HStack(spacing: 4) {
+            caption
+            percent.font(Self.menuBarFont)
+            if warn { glyph }
         }
-        .minimumScaleFactor(0.6)
     }
 
     private func tint(for severity: AlertEngine.Severity) -> Color {

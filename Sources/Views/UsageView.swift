@@ -200,7 +200,7 @@ struct UsageChartsRow: View {
                     .displayedFraction(mode: mode) * 100))
             } : []
             return QuotaChartReading(id: metric.id, label: L10n.tr(metric.label), value: value,
-                caption: caption(window), amount: window.isUnlimitedAmount ? window.usedAmount.map { UsageCreditDisplay.currency($0, code: window.currencyCode) } : nil, history: value.map {
+                caption: caption(window, metric: metric), amount: window.isUnlimitedAmount ? window.usedAmount.map { UsageCreditDisplay.currency($0, code: window.currencyCode) } : nil, history: value.map {
                     SparklineSamples.displayed(history: history, value: $0, seed: seed + index,
                                                isDemo: AppEnvironment.isDemo)
                 } ?? [])
@@ -248,6 +248,16 @@ struct UsageChartsRow: View {
         .id(style)
         .transition(reduceMotion ? .opacity : .chartSwap)
         .animation(reduceMotion ? nil : .chartSwap, value: style)
+    }
+
+    /// Weekly tile: the usual caption plus how much of the week went today.
+    func caption(_ window: WindowUsage, metric: UsageChartMetric) -> String {
+        let base = caption(window)
+        guard metric.id == UsageWindow.weekly.rawValue, window.hasPercentageReading,
+              let today = DailyUsage.usedToday(historyStore.samples(key: metric.historyKey).map { ($0.at, $0.used) })
+        else { return base }
+        let todayText = L10n.tr("+%d%% today", DisplayNumber.percent(today * 100))
+        return base.isEmpty ? todayText : base + " · " + todayText
     }
 
     func caption(_ window: WindowUsage) -> String {

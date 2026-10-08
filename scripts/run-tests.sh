@@ -85,6 +85,14 @@ swiftc \
 
 swiftc \
   -parse-as-library \
+  -o "$OUT_DIR/daily-usage-tests" \
+  Sources/Usage/DailyUsage.swift \
+  Tests/DailyUsageTests.swift
+
+"$OUT_DIR/daily-usage-tests"
+
+swiftc \
+  -parse-as-library \
   -o "$OUT_DIR/wake-recovery-tests" \
   Sources/Model/UsageDisplayModeStore.swift \
   Sources/Usage/AppUsage.swift \

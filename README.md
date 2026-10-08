@@ -30,10 +30,12 @@ providers' own usage endpoints.
 
 ## This fork (rightin2)
 
-The peek pill shows **both** usage windows for Claude and Codex: the 5-hour
-percentage on top and the weekly percentage underneath (`32% 5h` / `61% 7d`).
-The weekly row takes its own amber/red colour from the alert thresholds. Reset
-countdowns are still in the expanded panel. Auto-updates point at this fork, so
+The peek pill shows **both** usage windows for Claude and Codex side by side
+(`5h 32%  7d 61%`), in the macOS menu-bar font so it reads like the status items
+next to it. The weekly figure takes its own amber/red colour from the alert
+thresholds. In the expanded panel, the weekly tile also says how much of the
+week you used today (`+9% today`), worked out from the readings the app records
+since midnight. Reset countdowns are still in the expanded panel. Auto-updates point at this fork, so
 upstream releases never overwrite it.
 
 Rebuild and install (from a clean copy, since Desktop files carry metadata that
