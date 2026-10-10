@@ -102,6 +102,18 @@ swiftc \
 
 swiftc \
   -parse-as-library \
+  -o "$OUT_DIR/usage-cap-tests" \
+  Sources/Model/UsageDisplayModeStore.swift \
+  Sources/Usage/AppUsage.swift \
+  Sources/Usage/UsageCapDecision.swift \
+  Tests/UsageCapTests.swift
+
+"$OUT_DIR/usage-cap-tests"
+
+Tests/usage-cap-hook-test.sh
+
+swiftc \
+  -parse-as-library \
   -o "$OUT_DIR/wake-recovery-tests" \
   Sources/Model/UsageDisplayModeStore.swift \
   Sources/Usage/AppUsage.swift \

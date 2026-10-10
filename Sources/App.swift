@@ -94,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Wire the alert engine after the usage store so its initial
         // recompute sees whatever values the first refresh has produced.
         AlertEngine.shared.start()
+        UsageCapEngine.shared.start()
 
         // Touch the shared updater so Sparkle starts its background scheduler.
         _ = UpdaterController.shared

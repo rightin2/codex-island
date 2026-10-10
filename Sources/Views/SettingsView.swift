@@ -16,6 +16,8 @@ struct SettingsView: View {
     @ObservedObject private var lowPower = LowPowerModeStore.shared
     @ObservedObject private var alwaysShow = AlwaysShowUsageStore.shared
     @ObservedObject private var alertPrefs = AlertThresholdStore.shared
+    @ObservedObject private var capPrefs = UsageCapStore.shared
+    @ObservedObject private var capEngine = UsageCapEngine.shared
     @ObservedObject private var spacing = IslandSpacingStore.shared
     @ObservedObject private var usageDisplay = UsageDisplayModeStore.shared
     @ObservedObject private var targetDisplay = IslandTargetDisplayStore.shared
@@ -155,6 +157,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 14)
             alertsSection
+            usageCapSection
             updatesSection
         }
     }
@@ -297,6 +300,46 @@ struct SettingsView: View {
         .padding(.horizontal, 14)
         .padding(.top, 14)
         .padding(.bottom, 6)
+    }
+
+    /// Usage cap. At the cap every Claude Code session is told to wrap up;
+    /// at cap + tolerance all Claude work pauses until the window resets.
+    private var usageCapSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            sectionLabel("Usage cap")
+            SettingsRow(
+                title: "Pause Claude at a cap",
+                subtitle: capSubtitle
+            ) {
+                SettingsToggle(isOn: capPrefs.enabled) {
+                    withAnimation(.strongEaseOut) { capPrefs.enabled.toggle() }
+                }
+            }
+            VStack(spacing: 6) {
+                thresholdLine(color: IslandColor.alertAmber, label: "5-hour cap",
+                              value: $capPrefs.fiveHourCap, range: UsageCapStore.capRange)
+                thresholdLine(color: IslandColor.alertAmber, label: "Weekly cap",
+                              value: $capPrefs.weeklyCap, range: UsageCapStore.capRange)
+                thresholdLine(color: IslandColor.alertRed, label: "Tolerance before full pause",
+                              value: $capPrefs.tolerancePercent, range: UsageCapStore.toleranceRange)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .disabled(!capPrefs.enabled)
+            .opacity(capPrefs.enabled ? 1.0 : 0.40)
+        }
+        .padding(.horizontal, 14)
+        .padding(.top, 14)
+        .padding(.bottom, 6)
+    }
+
+    private var capSubtitle: String {
+        let s = capEngine.status
+        switch s.level {
+        case .none: return "At the cap, chats are told to finish up; past the tolerance, all Claude work pauses until reset."
+        case .soft: return "Cap reached (\(s.window) \(s.percent)%): chats are finishing up. Full pause at \(s.hardAt)%."
+        case .hard: return "Paused: \(s.window) usage \(s.percent)%. Resumes when the window resets."
+        }
     }
 
     private var previewButtons: some View {

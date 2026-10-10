@@ -42,7 +42,17 @@ working right now (from Claude Code's own session registry, `~/.claude/sessions`
 `claude -p` script runs are left out). It only grows leftward and never over the
 frontmost app's menus: it reads where they end through Accessibility (grant
 CodexIsland in System Settings, Privacy & Security, Accessibility). Names shorten,
-then collapse to a `+N` count, when space runs out. Auto-updates point at this fork, so
+then collapse to a `+N` count, when space runs out.
+
+**Usage cap** (Settings, Usage cap; off by default): pick a 5-hour cap, a weekly
+cap and a tolerance (default 2%). At a cap, CodexIsland writes
+`~/.claude/usage-cap.state` and the Claude Code hook `hooks/usage-cap-hook.sh`
+(installed as `~/.claude/hooks/codexisland-usage-cap.sh` on PreToolUse,
+PostToolUse and UserPromptSubmit) tells every session to finish its current step
+and stop. At cap + tolerance the hook stops sessions outright and blocks new
+prompts, and background `claude -p` runs are frozen (SIGSTOP) and resumed when
+usage drops back under the cap. The hook ignores a state file older than 10
+minutes, so quitting the island never leaves work blocked. Auto-updates point at this fork, so
 upstream releases never overwrite it.
 
 Rebuild and install (from a clean copy, since Desktop files carry metadata that
